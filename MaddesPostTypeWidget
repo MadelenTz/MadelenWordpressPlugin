@@ -1,0 +1,113 @@
+<?php
+/*
+Plugin Name: MaddesPostTypeWidget
+Plugin URI: 
+Description: Test widget för Ynnor
+Author: Madelen Tzoanidis
+Version: 1.1
+Author URI: 
+*/
+
+class MaddesPostTypeWidget extends WP_Widget {
+	// Konstruktor
+	function MaddesPostTypeWidget() {
+		
+		parent::WP_Widget(
+			'Maddes_Post_Type_Widget', //ID
+			'Maddes Post Type', //Namn
+			array('description' => __( 'Visar de senaste inläggen från Madelenes Custom Post Type. Visar titel, bild och datum från inläggen'))
+	   );
+	}
+	
+	// Sparar data vid editering
+	function update($new_instance, $old_instance) {
+		$instance = $old_instance;
+		$instance['title'] = strip_tags($new_instance['title']);
+		$instance['numberOfPosts'] = strip_tags($new_instance['numberOfPosts']);
+		return $instance;
+	}
+	
+	// Skapar utseendet till Widgeten
+	function form($instance) {
+		if( $instance) {
+			$title = esc_attr($instance['title']);
+			$numberOfPosts = esc_attr($instance['numberOfPosts']);
+		} else {
+			$title = '';
+			$numberOfPosts = '';
+		}
+		?>
+
+		<!--Skapar label för titeln-->
+		<p>
+		<label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title', 'Maddes_Post_Type_Widget'); ?></label>
+		<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
+		</p>
+		<!--Skapar label för numberOfPosts-->
+		<p>
+		<label for="<?php echo $this->get_field_id('numberOfPosts'); ?>"><?php _e('Number of Posts to show in widget:', 'Maddes_Post_Type_Widget'); ?></label>		
+		<select id="<?php echo $this->get_field_id('numberOfPosts'); ?>"  name="<?php echo $this->get_field_name('numberOfPosts'); ?>">
+   
+   
+			<?php
+			$numberOfMyCustomPostType = new WP_Query(); //Skapar ett nytt WP_Querry-objekt
+			$numberOfMyCustomPostType->query('post_type=Madelen_post_type'); //Hämtar alla posts av en viss typ (Madelen_post_type i detta fall)
+			for($x=1;$x<=$numberOfMyCustomPostType->found_posts;$x++): // Loopar från 1-"Antal posts" som finns av typen
+			?>	
+				<!--Och skapar en rad i "select-boxen" för olika antal av "Madelen_post_type"-->
+				<option <?php echo $x == $numberOfPosts ? 'selected="selected"' : '';?> value="<?php echo $x;?>"><?php echo $x; ?></option>
+			<?php endfor;?>
+		</select>
+		</p>		 
+		<?php
+	}
+	
+	// Visar widget innehållet för användaren
+	function widget($args, $instance) { 
+		extract( $args );
+		$title = apply_filters('widget_title', $instance['title']);
+		$numberOfPosts = $instance['numberOfPosts'];
+		echo $before_widget;
+		if ( $title ) {
+			echo $before_title . $title . $after_title;
+		}
+		$this->getPosts($numberOfPosts);
+		echo $after_widget;
+	}
+
+	
+	//Visar inlägg från "Madelen Custom Post Type", sorterar efter datum (senast först), av typen "Madelen_post_type"
+ 	function getPosts($numberOfPosts) { 
+		global $post;
+		add_image_size( 'Maddes_Post_Type_Widget_Size', 85, 45, false );
+		$posts = new WP_Query();
+		$posts->query('post_type=Madelen_post_type&posts_per_page=' . $numberOfPosts );	
+		if($posts->found_posts > 0) {
+			echo '<ul class="Maddes_Post_Type_Widget">';
+				while ($posts->have_posts()) {
+					$posts->the_post();
+					//Måste ange "Utvald bild" på inlägget för att bild ska synas i widgeten. 
+					$image = (has_post_thumbnail($post->ID)) ? get_the_post_thumbnail($post->ID, 'Maddes_Post_Type_Widget_Size') : '<div class="noThumb"></div>'; 
+					$postItem = '<li>' . $image; //Listar bilden
+					$postItem .= '<a href="' . get_permalink() . '">';//Länken till inlägget
+					$postItem .=  get_the_title() . '</a>'; //Titel på inlägget
+					$postItem .= '<span>Skapad ' . get_the_date() . '</span></li>'; //Datum som inlägget är skrivet.
+					$postItem .= substr(get_the_content(),0, strpos(get_the_content(), "</p>")+4);//Hämtar och visar första stycket i inlägget. 
+					echo $postItem; 
+				}
+			echo '</ul>';
+			wp_reset_postdata(); 
+		}else{
+			echo '<p style="padding:25px;">No posts found</p>';
+		} 
+	}
+	
+} 
+
+
+//Registrerar("skapar") widgeten. Gör att vi kan hittat widgeten i "Adminpanelen - widgets"
+add_action( 'widgets_init', create_function('', 'return register_widget("MaddesPostTypeWidget");') );
+
+
+?>
+
