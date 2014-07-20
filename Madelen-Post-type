@@ -1,0 +1,44 @@
+<?php
+/**
+ * Plugin Name: Madelen Post type
+ * Plugin URI: http://URI_Of_Page_Describing_Plugin_and_Updates
+ * Description: Test plugin för Ynnor. 
+ * Version: 1.0
+ * Author: Madelen Tzoanidis
+ * Author URI: http://URI_Of_The_Plugin_Author
+ * License: A "Slug" license name e.g. GPL2
+ */
+ 
+ add_action( 'init', 'create_Madelen_Post_type' ); 
+ 
+ function create_Madelen_Post_type() {
+    register_post_type( 'Madelen_post_type',
+        array(
+			// Alla fält som finns i Custom Post Type
+            'labels' => array(
+                'name' => 'Madelen Posts',
+                'singular_name' => 'Madelen Post',
+                'add_new' => 'Add New',
+                'add_new_item' => 'Add New Post',
+                'edit' => 'Edit',
+                'edit_item' => 'Edit Post',
+                'new_item' => 'New Post',
+                'view' => 'View',
+                'view_item' => 'View Post',
+                'search_items' => 'Search Posts',
+                'not_found' => 'No posts found',
+                'not_found_in_trash' => 'No posts found in Trash',
+                'parent' => 'Parent Post'
+            ),
+ 
+            'public' => true, //Avgör synlighet, både i admin panelen och front end
+            'menu_position' => 15, //Avgör position
+			
+			//Samma som vid blogginläggen, berättar vad som visas för admin, t.ex. titel på inlägg och 		författaren.
+			'supports' => array( 'title', 'editor','author','comments', 'thumbnail', 'custom-fields' ),
+            'menu_icon' => 'dashicons-edit', //Visar meny-ikon för admin
+            'has_archive' => true //Aktivera arkivering
+        )
+    );
+}
+ ?>
