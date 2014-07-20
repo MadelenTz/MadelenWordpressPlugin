@@ -34,7 +34,7 @@
             'public' => true, //Avgör synlighet, både i admin panelen och front end
             'menu_position' => 15, //Avgör position
 			
-			//Samma som vid blogginläggen, berättar vad som visas för admin, t.ex. titel på inlägg och 		författaren.
+			//Samma som vid blogginläggen, berättar vad som visas för admin, t.ex. titel på inlägg och författaren.
 			'supports' => array( 'title', 'editor','author','comments', 'thumbnail', 'custom-fields' ),
             'menu_icon' => 'dashicons-edit', //Visar meny-ikon för admin
             'has_archive' => true //Aktivera arkivering
